@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>💰 ИМПЕРИЯ КАПИТАЛА</title>
+    
+    <!-- PWA / Приложение: манифест и мета-теги -->
+    <link rel="manifest" href="data:application/manifest+json,{name:'Capital Empire',short_name:'Capital',description:'Финансовый кликер',display:'standalone',orientation:'portrait',theme_color:'%231a1e3a',background_color:'%230b0c1e',icons:[{src:'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23FFD966\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'60\' text-anchor=\'middle\' fill=\'%23422b0c\' font-weight=\'bold\'%3E💰%3C/text%3E%3C/svg%3E',sizes:'512x512',type:'image/svg+xml'}]}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Capital Empire">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FFD966'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='%23422b0c' font-weight='bold'%3E💰%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            color: #FFFFFF;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b0c1e 0%, #1a1e3a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 8px;
+            margin: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            background: rgba(18, 22, 48, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 215, 100, 0.4);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 2px #3a4a8c inset, 0 0 30px #ffd96677;
+            padding: 16px 12px 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-top: 8px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+        .title h1 {
+            color: #FFFFFF;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-shadow: 0 0 20px #FFB347, 0 4px 8px #00000080;
+        }
+        .online-badge {
+            background: #2ed573;
+            padding: 6px 12px;
+            border-radius: 60px;
+            font-weight: 800;
+            color: #0a1f0e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #a3ffb0;
+            box-shadow: 0 0 15px #2ed573aa;
+        }
+
+        .balance-panel {
+            background: #0f1322ee;
+            border-radius: 30px;
+            padding: 10px 16px;
+            margin: 4px 0 8px;
+            border: 1px solid #ffd96699;
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 2px 5px #00000088, 0 8px 12px #00000040;
+        }
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .balance-value {
+            font-size: 2.0rem;
+            font-weight: 900;
+            color: #FFE484;
+            text-shadow: 0 0 20px #ffb347;
+        }
+        .currency-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+        .currency-btn {
+            background: #202540;
+            border: 1px solid #7f8edb;
+            border-radius: 30px;
+            padding: 4px 10px;
+            color: #FFFFFF;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #0f1322;
+            font-size: 0.8rem;
+        }
+        .currency-btn.active {
+            background: #ffd96655;
+            border-color: #FFD966;
+            box-shadow: 0 0 12px #ffd966;
+        }
+        .income-badge {
+            color: #a2f5a2;
+            background: #1f2a3f;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #64d888;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+            background: #0f1322dd;
+            padding: 6px 4px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #5e6db3;
+        }
+        .tab-btn {
+            flex: 1 0 auto;
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-weight: 700;
+            padding: 8px 4px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tab-btn.active {
+            background: #ffd96655;
+            border: 1px solid #FFD966;
+            color: #FFE484;
+            box-shadow: 0 0 15px #ffd966aa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active { display: block; }
+
+        .clicker-area {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        .click-button {
+            width: 160px;
+            height: 160px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 25%, #ffe694, #f7b32b);
+            box-shadow: 0 10px 0 #8b5e1a, 0 20px 30px #00000070, 0 0 40px #ffd966;
+            border: 4px solid #fff3cf;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #422b0c;
+            font-weight: 900;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 5px #ffeeaa;
+            transform: translateY(-4px);
+            transition: transform 0.05s, box-shadow 0.05s;
+            will-change: transform;
+        }
+        .click-button:active { transform: translateY(4px); box-shadow: 0 6px 0 #6b4513, 0 15px 20px #00000070, 0 0 45px #ffc164; }
+
+        .float-number {
+            position: fixed;
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: #FFD966;
+            text-shadow: 0 0 15px #ffae00, 0 4px 8px black;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 0.9s ease-out forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            80% { opacity: 0.8; transform: translateY(-70px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-120px) scale(0.6); }
+        }
+
+        .upgrades {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0 10px;
+        }
+        .upgrade-btn {
+            flex: 1;
+            background: #202540ee;
+            border: 2px solid #7b8cdd;
+            border-radius: 40px;
+            padding: 12px;
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 5px 0 #0f1322, 0 0 15px #3f51b5;
+            cursor: pointer;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+        .upgrade-btn.disabled { opacity: 0.5; pointer-events: none; }
+
+        .card {
+            background: #10142bdd;
+            border-radius: 28px;
+            padding: 16px 14px;
+            margin-bottom: 14px;
+            border: 1px solid #f3cd81aa;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 12px #00000040, inset 0 0 20px #2e3b6e;
+        }
+        .card-title {
+            color: #FFFFFF;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            text-shadow: 0 2px 5px #00000080;
+            font-size: 1.2rem;
+        }
+        .btn {
+            background: #3d4b9e;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 16px;
+            color: #FFFFFF;
+            font-weight: 800;
+            box-shadow: 0 5px 0 #1f2660, 0 0 15px #5f72d6;
+            cursor: pointer;
+            border: 1px solid #b3beff;
+        }
+        .btn.small { padding: 6px 12px; font-size: 0.8rem; }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1f2660, 0 0 20px #7f93ff; }
+
+        .progress-bar {
+            background: #0f1322;
+            height: 12px;
+            border-radius: 20px;
+            margin: 8px 0;
+            box-shadow: inset 0 2px 5px black;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #ffd966;
+            border-radius: 20px;
+            box-shadow: 0 0 10px #ffd966;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+        .leaderboard-list li {
+            display: flex;
+            justify-content: space-between;
+            background: #1b2042dd;
+            padding: 10px 16px;
+            border-radius: 30px;
+            margin-bottom: 5px;
+            border: 1px solid #7b8cdd66;
+            font-weight: 600;
+        }
+
+        .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        input, select {
+            background: #0b0e1e;
+            border: 2px solid #7f8edb;
+            border-radius: 30px;
+            padding: 10px 14px;
+            color: #FFFFFF;
+            outline: none;
+            font-weight: 600;
+        }
+        input::placeholder { color: #b0bbee; }
+
+        .item-card {
+            background: #1f2545;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #7b8cdd55;
+        }
+
+        .company-logo { font-size: 1.4rem; margin-right: 6px; }
+        .crypto-icon { font-size: 1.2rem; margin-right: 4px; }
+
+        .storage-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #ffd966; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="header">
+        <div class="title"><h1>💎 CAPITAL</h1></div>
+        <div class="online-badge"><span></span> ОФЛАЙН</div>
+    </div>
+
+    <div class="balance-panel">
+        <div class="balance-row">
+            <span class="balance-label" id="currencyLabel">RUB</span>
+            <span class="balance-value" id="balanceDisplay">1 000 ₽</span>
+        </div>
+        <div class="currency-selector" id="currencySelector"></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem;" id="otherBalances"></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+            <span>💰 Капитал: <span id="totalCapital">0</span> ₽</span>
+            <span class="income-badge" id="incomeDisplay">+0 ₽/с</span>
+        </div>
+    </div>
+
+    <div class="tabs" id="tabsContainer"></div>
+
+    <div class="scrollable-content" id="scrollableContent">
+        <!-- КЛИКЕР -->
+        <div class="tab-content active" id="tab-clicker">
+            <div class="clicker-area">
+                <div class="click-button" id="clickButton">💰<br><small style="color:#422b0c;">ТАП</small></div>
+            </div>
+            <div class="upgrades">
+                <div class="upgrade-btn" id="upgradeClickBtn"><span>🔨Сила +1</span><br><span id="clickCost">100 ₽</span></div>
+                <div class="upgrade-btn" id="buyAutoClickerBtn"><span>🤖Автоклик</span><br><span id="autoCost">250 ₽</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Статистика</div>
+                <div>Сила клика: <span id="clickPowerVal">1</span> ₽</div>
+                <div>Автокликеров: <span id="autoLevel">0</span> (доход <span id="autoIncomeVal">0</span> ₽/с)</div>
+                <div>Всего кликов: <span id="totalClicks">0</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">👑 VIP-статус</div>
+                <div>Уровень: <span id="vipLevel">0</span> | Бонус к клику: +<span id="vipBonus">0</span>%</div>
+                <button class="btn small" id="buyVipBtn">Купить VIP (100 000 ₽)</button>
+            </div>
+            <div class="card">
+                <div class="card-title">🎁 Ежедневный бонус</div>
+                <button class="btn small" id="dailyBonusBtn">Получить (1000 ₽)</button>
+                <div>Следующий через: <span id="dailyTimer">24ч</span></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">💾 Данные приложения</div>
+                <div class="storage-actions">
+                    <button class="btn small" id="exportSaveBtn">📤 Экспорт</button>
+                    <button class="btn small" id="importSaveBtn">📥 Импорт</button>
+                    <button class="btn small" id="resetSaveBtn">🔄 Сброс</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
+                <p style="font-size:0.8rem; margin-top:8px;">Прогресс сохраняется автоматически. Экспортируйте файл для переноса.</p>
+            </div>
+        </div>
+
+        <!-- Остальные вкладки (полные) -->
+        <div class="tab-content" id="tab-business"><div class="card"><div class="card-title">🏪 Ваши предприятия</div><div id="businessList"></div></div><div class="card"><div class="card-title">🛒 Купить / Улучшить</div><div id="businessShop"></div></div><div class="card"><div class="card-title">📈 Маркетинг</div><button class="btn small" id="runCampaignBtn">Запустить (1000 ₽)</button><span>Активна: <span id="campaignActive">нет</span></span><div>Удваивает доход бизнеса на 30с</div></div></div>
+        <div class="tab-content" id="tab-invest"><div class="card"><div class="card-title">📊 Портфель</div><div id="portfolioSummary"></div></div><div class="card"><div class="card-title">🏢 Рынок акций</div><div id="stockMarket"></div></div></div>
+        <div class="tab-content" id="tab-crypto"><div class="card"><div class="card-title">₿ Криптопортфель</div><div id="cryptoPortfolio"></div></div><div class="card"><div class="card-title">⛏️ Майнинг-ферма</div><div>Майнеров: <span id="minerCount">0</span> | Доход: <span id="minerIncome">0</span> BTC/с</div><button class="btn small" id="buyMinerBtn">Купить майнер (50000 ₽)</button><button class="btn small" id="upgradeMinerBtn">Улучшить (+10% к доходу) 25000 ₽</button><div>Уровень фермы: <span id="minerLevel">1</span></div></div><div class="card"><div class="card-title">📈 Криптобиржа</div><div id="cryptoMarket"></div></div></div>
+        <div class="tab-content" id="tab-credit"><div class="card"><div class="card-title">💳 Кредиты</div><div>Текущий долг: <span id="debtAmount">0</span> ₽</div><div>Процентная ставка: <span id="interestRate">15</span>% годовых</div><div>Ежемесячный платёж: <span id="monthlyPayment">0</span> ₽</div><div class="row"><input type="number" id="loanAmount" placeholder="Сумма" value="10000"><select id="loanTerm"><option value="1">1 год (15%)</option><option value="3">3 года (18%)</option><option value="5">5 лет (22%)</option><option value="10">10 лет (28%)</option></select></div><button class="btn small" id="takeLoanBtn">Взять кредит</button><button class="btn small" id="repayLoanBtn">Погасить досрочно</button><button class="btn small" id="refinanceBtn">Рефинансировать (ставка -2%)</button><div id="debtWarning" style="color:#ff8888;"></div></div></div>
+        <div class="tab-content" id="tab-charity"><div class="card"><div class="card-title">🎁 Фонды</div><div>Репутация: <span id="reputation">0</span> | Уровень: <span id="charityLevel">0</span></div><div>Скидка на налог: <span id="taxDiscount">0</span>%</div><div id="charityProjects"></div></div></div>
+        <div class="tab-content" id="tab-achievements"><div class="card"><div class="card-title">🏆 Достижения</div><div id="achievementsList"></div></div></div>
+        <div class="tab-content" id="tab-rating"><div class="card"><div class="card-title">🏆 ТОП по капиталу</div><ul class="leaderboard-list" id="ratingCapital"></ul></div><div class="card"><div class="card-title">🏭 Бизнес-империя</div><ul class="leaderboard-list" id="ratingBusiness"></ul></div><div class="card"><div class="card-title">₿ Крипто-магнаты</div><ul class="leaderboard-list" id="ratingCrypto"></ul></div><div class="card"><div class="card-title">❤️ Филантропы</div><ul class="leaderboard-list" id="ratingCharity"></ul></div><div class="card"><input type="text" id="playerNameInput" placeholder="Ваше имя" maxlength="14" style="width:100%; margin-bottom:8px;"><button class="btn small" id="saveRatingBtn">📤 Сохранить в рейтинг</button></div></div>
+    </div>
+</div>
+
+<script>
+    // Регистрация Service Worker для офлайн-работы
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register("data:application/javascript,self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})");
+        });
+    }
+
+    (function(){
+        "use strict";
+
+        // ----- КОНФИГУРАЦИЯ ВАЛЮТ -----
+        const currencies = [
+            { code: 'RUB', symbol: '₽', name: 'Рубль', rate: 1 },
+            { code: 'USD', symbol: '$', name: 'Доллар', rate: 90 },
+            { code: 'EUR', symbol: '€', name: 'Евро', rate: 100 },
+            { code: 'GBP', symbol: '£', name: 'Фунт', rate: 115 },
+            { code: 'JPY', symbol: '¥', name: 'Иена', rate: 0.65 },
+            { code: 'CNY', symbol: '¥', name: 'Юань', rate: 12.5 }
+        ];
+        const balances = {};
+        currencies.forEach(c => balances[c.code] = c.code === 'RUB' ? 1000 : 0);
+        let activeCurrency = 'RUB';
+
+        // ----- ИГРОВЫЕ ПЕРЕМЕННЫЕ -----
+        let clickPower = 1;
+        let autoClickerLevel = 0;
+        let upgradeClickLevel = 0;
+        let totalClicks = 0;
+        let vipLevel = 0;
+        const VIP_COST = 100000;
+        const AUTO_BASE = 2;
+        const BASE_CLICK = 100, CLICK_MULT = 1.8, AUTO_MULT = 2.0, BASE_AUTO = 250;
+
+        // Бизнесы
+        const businessTypes = {
+            shop: { name: 'Магазин', baseCost: 5000, baseIncome: 15, count: 0, level: 1 },
+            cafe: { name: 'Кофейня', baseCost: 12000, baseIncome: 40, count: 0, level: 1 },
+            it: { name: 'IT-стартап', baseCost: 30000, baseIncome: 120, count: 0, level: 1 },
+            factory: { name: 'Завод', baseCost: 80000, baseIncome: 350, count: 0, level: 1 },
+            bank: { name: 'Банк', baseCost: 200000, baseIncome: 900, count: 0, level: 1 },
+            hotel: { name: 'Отель', baseCost: 500000, baseIncome: 2500, count: 0, level: 1 },
+            airline: { name: 'Авиакомпания', baseCost: 1200000, baseIncome: 7000, count: 0, level: 1 },
+            corp: { name: 'Корпорация', baseCost: 3000000, baseIncome: 20000, count: 0, level: 1 }
+        };
+        let campaignActive = false;
+
+        // Инвестиции
+        const companies = [
+            { id: 'tech', name: 'TechCorp', sector: 'IT', logo: '💻', price: 500, volatility: 0.12, dividend: 5, owned: 0 },
+            { id: 'oil', name: 'OilEnergy', sector: 'Нефть', logo: '🛢️', price: 800, volatility: 0.08, dividend: 15, owned: 0 },
+            { id: 'retail', name: 'RetailGroup', sector: 'Ритейл', logo: '🛒', price: 300, volatility: 0.05, dividend: 3, owned: 0 },
+            { id: 'bank', name: 'FinanceBank', sector: 'Финансы', logo: '🏦', price: 1200, volatility: 0.10, dividend: 20, owned: 0 },
+            { id: 'green', name: 'GreenPower', sector: 'Энергетика', logo: '🌿', price: 650, volatility: 0.15, dividend: 8, owned: 0 },
+            { id: 'pharma', name: 'MediCorp', sector: 'Медицина', logo: '💊', price: 950, volatility: 0.09, dividend: 12, owned: 0 },
+            { id: 'auto', name: 'AutoMotor', sector: 'Авто', logo: '🚗', price: 1800, volatility: 0.14, dividend: 25, owned: 0 },
+            { id: 'telecom', name: 'TeleNet', sector: 'Телеком', logo: '📡', price: 420, volatility: 0.06, dividend: 6, owned: 0 },
+            { id: 'mining', name: 'MiningCo', sector: 'Добыча', logo: '⛏️', price: 2200, volatility: 0.18, dividend: 35, owned: 0 },
+            { id: 'ai', name: 'AI Future', sector: 'ИИ', logo: '🤖', price: 3500, volatility: 0.25, dividend: 0, owned: 0 }
+        ];
+
+        // Криптовалюты
+        const cryptoList = [
+            { id: 'BTC', name: 'Bitcoin', icon: '₿', price: 25000, volatility: 0.18, owned: 0 },
+            { id: 'ETH', name: 'Ethereum', icon: 'Ξ', price: 1500, volatility: 0.22, owned: 0 },
+            { id: 'BNB', name: 'Binance Coin', icon: '🟡', price: 300, volatility: 0.15, owned: 0 },
+            { id: 'SOL', name: 'Solana', icon: '◎', price: 100, volatility: 0.30, owned: 0 },
+            { id: 'DOGE', name: 'Dogecoin', icon: '🐕', price: 10, volatility: 0.40, owned: 0 },
+            { id: 'ADA', name: 'Cardano', icon: '🔵', price: 25, volatility: 0.25, owned: 0 },
+            { id: 'XRP', name: 'Ripple', icon: '💧', price: 50, volatility: 0.20, owned: 0 },
+            { id: 'DOT', name: 'Polkadot', icon: '⚫', price: 400, volatility: 0.28, owned: 0 }
+        ];
+        let miners = 0;
+        let minerLevel = 1;
+        const MINER_COST = 50000;
+        const MINER_BASE_INCOME = 0.0005;
+
+        // Кредиты
+        let debt = 0;
+        let interestRate = 0.15;
+        let loanTermYears = 1;
+        const INTEREST_PER_SEC = 0.15 / 31536000;
+
+        // Благотворительность
+        let reputation = 0;
+        const charityProjects = [
+            { id: 'med', name: 'Медицина', mult: 1, donated: 0, level: 1, bonus: 'Скидка на налог' },
+            { id: 'edu', name: 'Образование', mult: 2, donated: 0, level: 1, bonus: '+1% к доходу бизнеса' },
+            { id: 'eco', name: 'Экология', mult: 3, donated: 0, level: 1, bonus: 'Снижение волатильности акций' },
+            { id: 'science', name: 'Наука', mult: 4, donated: 0, level: 1, bonus: 'Ускорение майнинга' },
+            { id: 'culture', name: 'Культура', mult: 2, donated: 0, level: 1, bonus: 'Увеличение силы клика' }
+        ];
+
+        // Достижения
+        const achievements = [
+            { id: 'click1k', name: 'Кликер-новичок', desc: '1000 кликов', target: 1000, reward: 500, claimed: false },
+            { id: 'click10k', name: 'Мастер клика', desc: '10000 кликов', target: 10000, reward: 5000, claimed: false },
+            { id: 'capital1m', name: 'Первый миллион', desc: 'Капитал 1 000 000 ₽', target: 1000000, reward: 10000, claimed: false },
+            { id: 'capital10m', name: 'Десятка', desc: 'Капитал 10 000 000 ₽', target: 10000000, reward: 50000, claimed: false },
+            { id: 'business5', name: 'Начинающий магнат', desc: '5 бизнесов', target: 5, reward: 2000, claimed: false },
+            { id: 'business20', name: 'Империя', desc: '20 бизнесов', target: 20, reward: 20000, claimed: false },
+            { id: 'stocks10', name: 'Инвестор', desc: '10 акций', target: 10, reward: 3000, claimed: false },
+            { id: 'crypto5', name: 'Криптоэнтузиаст', desc: '5 видов крипты', target: 5, reward: 5000, claimed: false },
+            { id: 'charity100', name: 'Филантроп', desc: 'Пожертвовать 100 000 ₽', target: 100000, reward: 10000, claimed: false },
+            { id: 'miner10', name: 'Майнер', desc: '10 майнеров', target: 10, reward: 15000, claimed: false }
+        ];
+
+        let playerName = '';
+        let lastDaily = Date.now();
+        let dailyAvailable = true;
+        let nextTax = 60;
+        const TAX_RATE = 0.05;
+
+        // Вспомогательные функции
+        function getBalanceRUB() {
+            return Object.entries(balances).reduce((sum, [code, amt]) => {
+                const cur = currencies.find(c => c.code === code);
+                return sum + amt * (cur ? cur.rate : 1);
+            }, 0);
+        }
+
+        function setBalanceRUB(amount) {
+            const current = getBalanceRUB();
+            const diff = amount - current;
+            if (diff > 0) {
+                balances.RUB += diff;
+            } else {
+                let toSub = -diff;
+                for (let cur of currencies.sort((a,b) => b.rate - a.rate)) {
+                    if (toSub <= 0) break;
+                    const val = balances[cur.code] * cur.rate;
+                    const sub = Math.min(val, toSub);
+                    balances[cur.code] -= sub / cur.rate;
+                    toSub -= sub;
+                }
+            }
+        }
+
+        function formatMoney(amount, currencyCode) {
+            const cur = currencies.find(c => c.code === currencyCode);
+            return cur.symbol + amount.toFixed(cur.code === 'RUB' ? 0 : 2);
+        }
+
+        function calculateTotalIncome() {
+            let inc = autoClickerLevel * AUTO_BASE;
+            for (let type in businessTypes) {
+                const b = businessTypes[type];
+                inc += b.count * b.baseIncome * b.level;
+            }
+            if (campaignActive) inc *= 2;
+            const edu = charityProjects.find(p => p.id === 'edu');
+            if (edu && edu.level > 1) inc *= (1 + (edu.level-1) * 0.01);
+            return inc;
+        }
+
+        function calculateTotalCapital() {
+            let cap = getBalanceRUB();
+            companies.forEach(c => cap += c.owned * c.price);
+            cryptoList.forEach(c => cap += c.owned * c.price);
+            return cap;
+        }
+
+        function createFloatingNumber(event, text) {
+            requestAnimationFrame(() => {
+                const floatEl = document.createElement('div');
+                floatEl.className = 'float-number';
+                floatEl.textContent = text;
+                let clientX, clientY;
+                if (event.touches) {
+                    clientX = event.touches[0].clientX;
+                    clientY = event.touches[0].clientY;
+                } else {
+                    clientX = event.clientX;
+                    clientY = event.clientY;
+                }
+                floatEl.style.left = (clientX - 20) + 'px';
+                floatEl.style.top = (clientY - 30) + 'px';
+                document.body.appendChild(floatEl);
+                setTimeout(() => floatEl.remove(), 900);
+            });
+        }
+
+        // Интерфейс
+        function renderCurrencySelector() {
+            let html = '';
+            currencies.forEach(c => {
+                html += `<button class="currency-btn ${activeCurrency === c.code ? 'active' : ''}" data-currency="${c.code}">${c.symbol} ${c.code}</button>`;
+            });
+            document.getElementById('currencySelector').innerHTML = html;
+        }
+
+        function renderOtherBalances() {
+            let html = '';
+            currencies.filter(c => c.code !== activeCurrency).forEach(c => {
+                const amt = balances[c.code];
+                html += `<span>${c.symbol} ${amt.toFixed(2)}</span>`;
+            });
+            document.getElementById('otherBalances').innerHTML = html;
+        }
+
+        function updateUI() {
+            const rub = getBalanceRUB();
+            const activeCurr = currencies.find(c => c.code === activeCurrency);
+            const display = rub / activeCurr.rate;
+            document.getElementById('balanceDisplay').textContent = formatMoney(display, activeCurrency);
+            document.getElementById('currencyLabel').textContent = activeCurrency;
+            renderOtherBalances();
+            
+            document.getElementById('totalCapital').textContent = calculateTotalCapital().toFixed(0);
+            document.getElementById('incomeDisplay').textContent = '+' + calculateTotalIncome().toFixed(0) + ' ₽/с';
+            
+            const vipBonus = vipLevel * 5;
+            const effectiveClickPower = clickPower * (1 + vipBonus / 100);
+            document.getElementById('clickPowerVal').textContent = effectiveClickPower.toFixed(0);
+            document.getElementById('vipLevel').textContent = vipLevel;
+            document.getElementById('vipBonus').textContent = vipBonus;
+            
+            document.getElementById('autoLevel').textContent = autoClickerLevel;
+            document.getElementById('autoIncomeVal').textContent = (autoClickerLevel * AUTO_BASE).toFixed(0);
+            document.getElementById('totalClicks').textContent = totalClicks;
+            
+            const clickCost = Math.floor(BASE_CLICK * Math.pow(CLICK_MULT, upgradeClickLevel));
+            document.getElementById('clickCost').textContent = clickCost + ' ₽';
+            const autoCost = Math.floor(BASE_AUTO * Math.pow(AUTO_MULT, autoClickerLevel));
+            document.getElementById('autoCost').textContent = autoCost + ' ₽';
+            document.getElementById('upgradeClickBtn').classList.toggle('disabled', rub < clickCost);
+            document.getElementById('buyAutoClickerBtn').classList.toggle('disabled', rub < autoCost);
+            document.getElementById('buyVipBtn').disabled = rub < VIP_COST;
+
+            // Бизнес
+            let busHtml = '';
+            for (let type in businessTypes) {
+                const b = businessTypes[type];
+                if (b.count > 0) busHtml += `<div>${b.name} (ур.${b.level}): ${b.count} шт. (доход ${(b.count * b.baseIncome * b.level).toFixed(0)} ₽/с)</div>`;
+            }
+            document.getElementById('businessList').innerHTML = busHtml || 'Нет предприятий';
+            
+            let shopHtml = '';
+            for (let type in businessTypes) {
+                const b = businessTypes[type];
+                const cost = Math.floor(b.baseCost * Math.pow(1.5, b.count));
+                shopHtml += `<div class="item-card">
+                    <div><strong>${b.name}</strong> (доход ${b.baseIncome} ₽/с)</div>
+                    <div>Цена: ${cost} ₽ | У вас: ${b.count} (ур.${b.level})</div>
+                    <div class="row">
+                        <button class="btn small buy-business" data-type="${type}">Купить</button>
+                        <button class="btn small upgrade-business" data-type="${type}">Улучшить (${Math.floor(b.baseCost * 0.7)} ₽)</button>
+                    </div>
+                </div>`;
+            }
+            document.getElementById('businessShop').innerHTML = shopHtml;
+            document.getElementById('campaignActive').textContent = campaignActive ? 'активна 30с' : 'нет';
+
+            // Инвестиции
+            let portSum = '';
+            companies.forEach(c => { if (c.owned > 0) portSum += `<div><span class="company-logo">${c.logo}</span> ${c.name}: ${c.owned} акций (≈${(c.owned*c.price).toFixed(0)} ₽)</div>`; });
+            document.getElementById('portfolioSummary').innerHTML = portSum || 'Нет акций';
+            let marketHtml = '';
+            companies.forEach(c => {
+                marketHtml += `<div class="item-card">
+                    <div><span class="company-logo">${c.logo}</span> <strong>${c.name}</strong> (${c.sector}) | Цена: ${c.price.toFixed(0)} ₽ | Див: ${c.dividend}₽</div>
+                    <div class="row">
+                        <button class="btn small buy-stock" data-id="${c.id}">Купить 1</button>
+                        <button class="btn small sell-stock" data-id="${c.id}">Продать 1</button>
+                        <span>У вас: ${c.owned}</span>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('stockMarket').innerHTML = marketHtml;
+
+            // Крипто
+            let cryptoPort = '';
+            cryptoList.forEach(c => { if (c.owned > 0) cryptoPort += `<div><span class="crypto-icon">${c.icon}</span> ${c.name}: ${c.owned.toFixed(4)} (≈${(c.owned*c.price).toFixed(0)} ₽)</div>`; });
+            document.getElementById('cryptoPortfolio').innerHTML = cryptoPort || 'Нет криптовалют';
+            document.getElementById('minerCount').textContent = miners;
+            const minerInc = miners * MINER_BASE_INCOME * minerLevel;
+            document.getElementById('minerIncome').textContent = minerInc.toFixed(6);
+            document.getElementById('minerLevel').textContent = minerLevel;
+            
+            let cryptoMarketHtml = '';
+            cryptoList.forEach(c => {
+                cryptoMarketHtml += `<div class="item-card">
+                    <div><span class="crypto-icon">${c.icon}</span> ${c.name} (${c.id}) | Курс: ${c.price.toFixed(2)} ₽</div>
+                    <div class="row">
+                        <button class="btn small buy-crypto" data-id="${c.id}">Купить</button>
+                        <button class="btn small sell-crypto" data-id="${c.id}">Продать</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('cryptoMarket').innerHTML = cryptoMarketHtml;
+
+            // Кредиты
+            document.getElementById('debtAmount').textContent = debt.toFixed(0);
+            document.getElementById('interestRate').textContent = (interestRate * 100).toFixed(0);
+            const monthly = debt > 0 ? (debt * interestRate / 12) : 0;
+            document.getElementById('monthlyPayment').textContent = monthly.toFixed(0);
+            document.getElementById('debtWarning').textContent = rub < -1000 ? '⚠️ Баланс отрицательный!' : '';
+
+            // Благотворительность
+            const discount = Math.min(reputation * 0.2, 50);
+            document.getElementById('reputation').textContent = reputation;
+            const charityLevel = Math.floor(reputation / 1000);
+            document.getElementById('charityLevel').textContent = charityLevel;
+            document.getElementById('taxDiscount').textContent = discount.toFixed(1);
+            let projHtml = '';
+            charityProjects.forEach(p => {
+                projHtml += `<div class="item-card">
+                    <div><strong>${p.name}</strong> (ур.${p.level}) | Пожертвовано: ${p.donated} ₽</div>
+                    <div>Бонус: ${p.bonus}</div>
+                    <div class="row">
+                        <input type="number" id="donate_${p.id}" placeholder="Сумма" value="500" style="width:100px;">
+                        <button class="btn small donate-charity" data-id="${p.id}">Пожертвовать</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('charityProjects').innerHTML = projHtml;
+
+            // Достижения
+            let achHtml = '';
+            achievements.forEach(a => {
+                let progress = 0;
+                if (a.id.includes('click')) progress = totalClicks;
+                else if (a.id.includes('capital')) progress = calculateTotalCapital();
+                else if (a.id.includes('business')) progress = Object.values(businessTypes).reduce((s,b)=> s + b.count, 0);
+                else if (a.id.includes('stocks')) progress = companies.reduce((s,c)=> s + c.owned, 0);
+                else if (a.id.includes('crypto')) progress = cryptoList.filter(c => c.owned > 0).length;
+                else if (a.id.includes('charity')) progress = charityProjects.reduce((s,p)=> s + p.donated, 0);
+                else if (a.id.includes('miner')) progress = miners;
+                const percent = Math.min(progress / a.target * 100, 100);
+                achHtml += `<div class="item-card">
+                    <div><strong>${a.name}</strong> - ${a.desc} (${progress}/${a.target})</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${percent}%;"></div></div>
+                    ${!a.claimed && progress >= a.target ? `<button class="btn small claim-achievement" data-id="${a.id}">Получить ${a.reward} ₽</button>` : (a.claimed ? '✅ Получено' : '')}
+                </div>`;
+            });
+            document.getElementById('achievementsList').innerHTML = achHtml;
+
+            // Ежедневный бонус
+            const now = Date.now();
+            const timeLeft = Math.max(0, 86400000 - (now - lastDaily));
+            const hours = Math.floor(timeLeft / 3600000);
+            const mins = Math.floor((timeLeft % 3600000) / 60000);
+            document.getElementById('dailyTimer').textContent = `${hours}ч ${mins}м`;
+            dailyAvailable = timeLeft === 0;
+            document.getElementById('dailyBonusBtn').disabled = !dailyAvailable;
+
+            document.getElementById('taxTimer').textContent = nextTax;
+
+            updateRatings();
+            saveGame();
+        }
+
+        function updateRatings() {
+            const capital = calculateTotalCapital();
+            const businessCount = Object.values(businessTypes).reduce((s,b)=> s + b.count, 0);
+            const cryptoValue = cryptoList.reduce((s,c)=> s + c.owned*c.price, 0);
+            
+            const bots = [
+                {name:'BIBI KIWI', capital: 9876543210, biz:99, crypto:876543210, charity:99999},
+                {name:'MoneyKing', capital: 1500000, biz:15, crypto:500000, charity:5000},
+                {name:'ClickGod', capital: 890000, biz:8, crypto:200000, charity:2000},
+                {name:'Investor', capital: 2300000, biz:20, crypto:1200000, charity:10000},
+                {name:'CryptoLord', capital: 4500000, biz:12, crypto:3500000, charity:3000},
+                {name: playerName || 'Вы', capital, biz: businessCount, crypto: cryptoValue, charity: reputation}
+            ];
+            bots.sort((a,b)=> b.capital - a.capital);
+            document.getElementById('ratingCapital').innerHTML = bots.slice(0,5).map(p => `<li><span>${p.name}</span><span>${p.capital.toFixed(0)}₽</span></li>`).join('');
+            
+            const bizSort = [...bots].sort((a,b)=> b.biz - a.biz);
+            document.getElementById('ratingBusiness').innerHTML = bizSort.slice(0,5).map(p => `<li><span>${p.name}</span><span>${p.biz} предп.</span></li>`).join('');
+            
+            const cryptoSort = [...bots].sort((a,b)=> b.crypto - a.crypto);
+            document.getElementById('ratingCrypto').innerHTML = cryptoSort.slice(0,5).map(p => `<li><span>${p.name}</span><span>${p.crypto.toFixed(0)}₽</span></li>`).join('');
+            
+            const charitySort = [...bots].sort((a,b)=> b.charity - a.charity);
+            document.getElementById('ratingCharity').innerHTML = charitySort.slice(0,5).map(p => `<li><span>${p.name}</span><span>${p.charity} реп.</span></li>`).join('');
+        }
+
+        // Сохранения
+        const STORAGE_KEY = 'capitalEmpire_app_v1';
+        function saveGame() {
+            const data = {
+                balances, clickPower, autoClickerLevel, upgradeClickLevel, totalClicks, vipLevel,
+                businessTypes, companies, cryptoList, miners, minerLevel,
+                debt, interestRate, loanTermYears, reputation, charityProjects,
+                achievements, playerName, lastDaily
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+        function loadGame() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const d = JSON.parse(saved);
+                    Object.assign(balances, d.balances || {RUB:1000});
+                    clickPower = d.clickPower || 1;
+                    autoClickerLevel = d.autoClickerLevel || 0;
+                    upgradeClickLevel = d.upgradeClickLevel || 0;
+                    totalClicks = d.totalClicks || 0;
+                    vipLevel = d.vipLevel || 0;
+                    if (d.businessTypes) Object.assign(businessTypes, d.businessTypes);
+                    if (d.companies) companies.forEach((c,i)=> { if(d.companies[i]) { c.owned = d.companies[i].owned; c.price = d.companies[i].price; }});
+                    if (d.cryptoList) cryptoList.forEach((c,i)=> { if(d.cryptoList[i]) { c.owned = d.cryptoList[i].owned; c.price = d.cryptoList[i].price; }});
+                    miners = d.miners || 0;
+                    minerLevel = d.minerLevel || 1;
+                    debt = d.debt || 0;
+                    interestRate = d.interestRate || 0.15;
+                    reputation = d.reputation || 0;
+                    if (d.charityProjects) charityProjects.forEach((p,i)=> { if(d.charityProjects[i]) Object.assign(p, d.charityProjects[i]); });
+                    if (d.achievements) achievements.forEach((a,i)=> { if(d.achievements[i]) a.claimed = d.achievements[i].claimed; });
+                    playerName = d.playerName || '';
+                    lastDaily = d.lastDaily || Date.now() - 86400000;
+                } catch(e) {}
+            }
+            updateUI();
+        }
+
+        // Инициализация вкладок
+        function initTabs() {
+            const tabs = ['clicker', 'business', 'invest', 'crypto', 'credit', 'charity', 'achievements', 'rating'];
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = tabs.map(t => `<button class="tab-btn ${t === 'clicker' ? 'active' : ''}" data-tab="${t}">${t === 'clicker' ? '👆Кликер' : t === 'business' ? '🏢Бизнес' : t === 'invest' ? '📈Инвест' : t === 'crypto' ? '₿Крипто' : t === 'credit' ? '💳Кредит' : t === 'charity' ? '🎁Фонды' : t === 'achievements' ? '🏆Достиж' : '🏅Рейтинг'}</button>`).join('');
+        }
+        initTabs();
+
+        // Делегирование событий
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-btn')) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(`tab-${e.target.dataset.tab}`).classList.add('active');
+            }
+            else if (e.target.classList.contains('currency-btn')) {
+                activeCurrency = e.target.dataset.currency;
+                renderCurrencySelector();
+                updateUI();
+            }
+            else if (e.target.classList.contains('buy-business')) {
+                const type = e.target.dataset.type;
+                const b = businessTypes[type];
+                const cost = Math.floor(b.baseCost * Math.pow(1.5, b.count));
+                if (getBalanceRUB() >= cost) { setBalanceRUB(getBalanceRUB() - cost); b.count++; updateUI(); }
+            }
+            else if (e.target.classList.contains('upgrade-business')) {
+                const type = e.target.dataset.type;
+                const b = businessTypes[type];
+                const cost = Math.floor(b.baseCost * 0.7);
+                if (getBalanceRUB() >= cost) { setBalanceRUB(getBalanceRUB() - cost); b.level++; updateUI(); }
+            }
+            else if (e.target.classList.contains('buy-stock')) {
+                const id = e.target.dataset.id;
+                const comp = companies.find(c => c.id === id);
+                if (getBalanceRUB() >= comp.price) { setBalanceRUB(getBalanceRUB() - comp.price); comp.owned++; updateUI(); }
+            }
+            else if (e.target.classList.contains('sell-stock')) {
+                const id = e.target.dataset.id;
+                const comp = companies.find(c => c.id === id);
+                if (comp.owned > 0) { comp.owned--; setBalanceRUB(getBalanceRUB() + comp.price); updateUI(); }
+            }
+            else if (e.target.classList.contains('buy-crypto')) {
+                const id = e.target.dataset.id;
+                const crypto = cryptoList.find(c => c.id === id);
+                const amt = parseFloat(prompt(`Купить ${crypto.name} по курсу ${crypto.price.toFixed(2)} RUB`));
+                if (amt > 0 && getBalanceRUB() >= amt * crypto.price) {
+                    setBalanceRUB(getBalanceRUB() - amt * crypto.price);
+                    crypto.owned += amt;
+                    updateUI();
+                }
+            }
+            else if (e.target.classList.contains('sell-crypto')) {
+                const id = e.target.dataset.id;
+                const crypto = cryptoList.find(c => c.id === id);
+                const amt = parseFloat(prompt(`Продать ${crypto.name} (у вас ${crypto.owned.toFixed(4)})`));
+                if (amt > 0 && crypto.owned >= amt) {
+                    crypto.owned -= amt;
+                    setBalanceRUB(getBalanceRUB() + amt * crypto.price);
+                    updateUI();
+                }
+            }
+            else if (e.target.classList.contains('claim-achievement')) {
+                const id = e.target.dataset.id;
+                const ach = achievements.find(a => a.id === id);
+                if (ach && !ach.claimed) {
+                    ach.claimed = true;
+                    setBalanceRUB(getBalanceRUB() + ach.reward);
+                    updateUI();
+                }
+            }
+            else if (e.target.classList.contains('donate-charity')) {
+                const id = e.target.dataset.id;
+                const proj = charityProjects.find(p => p.id === id);
+                const input = document.getElementById(`donate_${id}`);
+                const amt = parseFloat(input.value);
+                if (amt > 0 && getBalanceRUB() >= amt) {
+                    setBalanceRUB(getBalanceRUB() - amt);
+                    proj.donated += amt;
+                    reputation += Math.floor(amt / 100) * proj.mult;
+                    if (proj.donated >= proj.level * 50000) proj.level++;
+                    updateUI();
+                }
+            }
+        });
+
+        // Кликер
+        function handleClick(e) {
+            e.preventDefault();
+            totalClicks++;
+            const vipBonus = vipLevel * 5;
+            const effectivePower = clickPower * (1 + vipBonus / 100);
+            setBalanceRUB(getBalanceRUB() + effectivePower);
+            createFloatingNumber(e, `+${effectivePower.toFixed(0)}`);
+            if (navigator.vibrate) navigator.vibrate(5);
+            updateUI();
+        }
+
+        const clickBtn = document.getElementById('clickButton');
+        clickBtn.addEventListener('click', handleClick);
+        clickBtn.addEventListener('touchstart', handleClick, {passive: false});
+
+        document.getElementById('upgradeClickBtn').addEventListener('click', () => {
+            const cost = Math.floor(BASE_CLICK * Math.pow(CLICK_MULT, upgradeClickLevel));
+            if (getBalanceRUB() >= cost) { setBalanceRUB(getBalanceRUB() - cost); clickPower++; upgradeClickLevel++; updateUI(); }
+        });
+        document.getElementById('buyAutoClickerBtn').addEventListener('click', () => {
+            const cost = Math.floor(BASE_AUTO * Math.pow(AUTO_MULT, autoClickerLevel));
+            if (getBalanceRUB() >= cost) { setBalanceRUB(getBalanceRUB() - cost); autoClickerLevel++; updateUI(); }
+        });
+        document.getElementById('buyVipBtn').addEventListener('click', () => {
+            if (getBalanceRUB() >= VIP_COST) { setBalanceRUB(getBalanceRUB() - VIP_COST); vipLevel++; updateUI(); }
+        });
+        document.getElementById('runCampaignBtn').addEventListener('click', () => {
+            if (getBalanceRUB() >= 1000) { setBalanceRUB(getBalanceRUB() - 1000); campaignActive = true; setTimeout(() => { campaignActive = false; updateUI(); }, 30000); updateUI(); }
+        });
+        document.getElementById('buyMinerBtn').addEventListener('click', () => {
+            if (getBalanceRUB() >= MINER_COST) { setBalanceRUB(getBalanceRUB() - MINER_COST); miners++; updateUI(); }
+        });
+        document.getElementById('upgradeMinerBtn').addEventListener('click', () => {
+            if (getBalanceRUB() >= 25000) { setBalanceRUB(getBalanceRUB() - 25000); minerLevel++; updateUI(); }
+        });
+        document.getElementById('takeLoanBtn').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const term = parseInt(document.getElementById('loanTerm').value);
+            let rate = 0.15;
+            if (term === 3) rate = 0.18;
+            else if (term === 5) rate = 0.22;
+            else if (term === 10) rate = 0.28;
+            interestRate = rate;
+            loanTermYears = term;
+            if (amount > 0) { debt += amount; setBalanceRUB(getBalanceRUB() + amount); updateUI(); }
+        });
+        document.getElementById('repayLoanBtn').addEventListener('click', () => {
+            if (getBalanceRUB() >= debt) { setBalanceRUB(getBalanceRUB() - debt); debt = 0; updateUI(); }
+        });
+        document.getElementById('refinanceBtn').addEventListener('click', () => {
+            if (debt > 0 && interestRate > 0.05) { interestRate = Math.max(0.05, interestRate - 0.02); updateUI(); }
+        });
+        document.getElementById('dailyBonusBtn').addEventListener('click', () => {
+            if (dailyAvailable) { setBalanceRUB(getBalanceRUB() + 1000); lastDaily = Date.now(); updateUI(); }
+        });
+        document.getElementById('saveRatingBtn').addEventListener('click', () => {
+            playerName = document.getElementById('playerNameInput').value || 'Игрок';
+            updateRatings();
+            saveGame();
+        });
+
+        // Экспорт/импорт/сброс
+        document.getElementById('exportSaveBtn').addEventListener('click', () => {
+            const data = localStorage.getItem(STORAGE_KEY);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'capital_empire_save.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        document.getElementById('importSaveBtn').addEventListener('click', () => {
+            document.getElementById('importFileInput').click();
+        });
+        document.getElementById('importFileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = ev.target.result;
+                    localStorage.setItem(STORAGE_KEY, data);
+                    loadGame();
+                    alert('Прогресс успешно импортирован!');
+                } catch(ex) {
+                    alert('Ошибка импорта файла.');
+                }
+                document.getElementById('importFileInput').value = '';
+            };
+            reader.readAsText(file);
+        });
+        document.getElementById('resetSaveBtn').addEventListener('click', () => {
+            if (confirm('Сбросить весь прогресс? Это действие нельзя отменить.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
+
+        // Интервал обновлений
+        setInterval(() => {
+            setBalanceRUB(getBalanceRUB() + calculateTotalIncome());
+            const btc = cryptoList.find(c => c.id === 'BTC');
+            if (btc) btc.owned += miners * MINER_BASE_INCOME * minerLevel;
+            companies.forEach(c => { if (c.owned > 0) setBalanceRUB(getBalanceRUB() + c.owned * c.dividend / 86400); });
+            if (debt > 0) debt += debt * INTEREST_PER_SEC;
+            nextTax--;
+            if (nextTax <= 0) {
+                const discount = Math.min(reputation * 0.2, 50);
+                let tax = getBalanceRUB() * TAX_RATE * (1 - discount/100);
+                if (tax > 0) setBalanceRUB(getBalanceRUB() - tax);
+                nextTax = 60;
+            }
+            companies.forEach(c => { c.price *= (1 + (Math.random() - 0.5) * c.volatility); if (c.price < 10) c.price = 10; });
+            cryptoList.forEach(c => { c.price *= (1 + (Math.random() - 0.5) * c.volatility); if (c.price < 1) c.price = 1; });
+            updateUI();
+        }, 1000);
+
+        renderCurrencySelector();
+        loadGame();
+    })();
+</script>
+</body>
+</html>
